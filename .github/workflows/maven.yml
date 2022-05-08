@@ -27,22 +27,29 @@ jobs:
     - name: Build with Maven
       run: mvn clean install
       
-    - name: Build and publish image to GCR
-      uses: carbonchain/action-container-registry@v1.1
-      with:
-        project_id: ${{ secrets.PROJECT_ID }}
-        dockerfile: DockerFile
-        image: gcr.io/${{ secrets.PROJECT_ID }}/expense-tracker
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-          
-    - id: 'auth'
+    - id: auth
       uses: 'google-github-actions/auth@v0'
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v0'
+      
+    - name: Buiding Image
+      run: docker build -t ${{ secrets.IMAGE_NAME }}:latest .
+      
+    - name: Config docker client
+      run: gcloud auth configure-docker --quiet
+      
+    - name: Push image
+      run: |-
+        docker tag ${{ secrets.IMAGE_NAME }}:latest gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.IMAGE_NAME }}:latest
+        docker push gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.IMAGE_NAME }}:latest
         
-    - name: Deploy
+    - name: deploy
       uses: 'google-github-actions/deploy-cloudrun@v0'
       with:
-        image: gcr.io/${{ secrets.PROJECT_ID }}/expense-tracker
-        service: 'expense-tracker'
+        service: expense-tracker
+        image: gcr.io/${{ secrets.PROJECT_ID }}/${{ secrets.IMAGE_NAME }}:latest
+
       
