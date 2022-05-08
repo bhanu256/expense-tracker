@@ -31,7 +31,7 @@ jobs:
       uses: carbonchain/action-container-registry@v1.1
       with:
         project_id: ${{ secrets.PROJECT_ID }}
-        dockerfile: ../../DockerFile
+        dockerfile: DockerFile
         image: gcr.io/${{ secrets.PROJECT_ID }}/expense-tracker
         service_account_key: ${{ secrets.GCP_SA_KEY }}
           
