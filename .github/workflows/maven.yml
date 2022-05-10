@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SECRET_KEY: ${{ secrets.GCP_SA_KEY }}
+      
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     steps:
     - uses: actions/checkout@v3
